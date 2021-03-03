@@ -28,6 +28,7 @@ import com.nisovin.shopkeepers.compat.NMSManager;
 import com.nisovin.shopkeepers.shopkeeper.AbstractShopkeeper;
 import com.nisovin.shopkeepers.ui.AbstractShopkeeperUIHandler;
 import com.nisovin.shopkeepers.ui.AbstractUIType;
+import com.nisovin.shopkeepers.util.ConfigUtils;
 import com.nisovin.shopkeepers.util.ItemUtils;
 import com.nisovin.shopkeepers.util.Log;
 import com.nisovin.shopkeepers.util.MerchantUtils;
@@ -462,15 +463,22 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 		if (tradingRecipe == null) {
 			// This should not happen..
 			if (!silent) {
-				Log.debug("Not handling trade: We couldn't find the used trading recipe!");
+				Log.debug("Not handling trade: We could not find the used trading recipe!");
 			}
 			this.clearResultSlotForInvalidTrade(merchantInventory);
 			return null;
 		}
-		if (!tradingRecipe.getResultItem().equals(resultItem)) {
+		ItemStack recipeResultItem = tradingRecipe.getResultItem();
+		if (!recipeResultItem.equals(resultItem)) {
 			// This should not happen..
 			if (!silent) {
-				Log.debug("Not handling trade: The trade result item doesn't match the expected item of the used trading recipe!");
+				if (Settings.isDebugging()) {
+					Log.debug("Not handling trade: The trade result item does not match the expected item of the used trading recipe!");
+					String recipeResultItemYaml = ConfigUtils.toYaml("recipeResultItem", recipeResultItem);
+					String resultItemYaml = ConfigUtils.toYaml("resultItem", resultItem);
+					Log.debug(recipeResultItemYaml);
+					Log.debug(resultItemYaml);
+				}
 			}
 			this.clearResultSlotForInvalidTrade(merchantInventory);
 			return null;
@@ -501,7 +509,7 @@ public class TradingHandler extends AbstractShopkeeperUIHandler {
 			// But this might for example happen if the FailedHandler#matches implementation falls back to using
 			// the stricter isSimilar for the item comparison and the involved items are not strictly similar.
 			if (!silent) {
-				Log.debug("Not handling trade: Couldn't match the offered items to the used trading recipe!");
+				Log.debug("Not handling trade: Could not match the offered items to the used trading recipe!");
 			}
 			this.clearResultSlotForInvalidTrade(merchantInventory);
 			return null;
