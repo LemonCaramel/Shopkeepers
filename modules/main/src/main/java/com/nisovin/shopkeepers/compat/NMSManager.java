@@ -12,9 +12,11 @@ import com.nisovin.shopkeepers.util.logging.Log;
 public final class NMSManager {
 
 	private static final Map<String, CompatVersion> SUPPORTED_MAPPINGS_VERSIONS = new LinkedHashMap<>();
+	private static final Map<String, CompatVersion> SUPPORTED_CRAFTBUKKIT_VERSIONS = new LinkedHashMap<>();
 
 	private static void register(CompatVersion version) {
 		SUPPORTED_MAPPINGS_VERSIONS.put(version.getMappingsVersion(), version);
+		SUPPORTED_CRAFTBUKKIT_VERSIONS.put(version.getCompatVersion(), version);
 	}
 
 	// Note: Although they look similar, our compat versions do not necessarily match CraftBukkit's 'Minecraft Version'.
@@ -27,6 +29,7 @@ public final class NMSManager {
 	// Versions before 1.17 are not affected by this, because they don't depend on the NMS code remapping.
 	static {
 		// Registered in the order from latest to oldest.
+		register(new CompatVersion("1_18_R1", "1.18", "cacad4c83144be72fddd1739b88fc3a6"));
 		register(new CompatVersion("1_17_R2", "1.17.1", "f0e3dfc7390de285a4693518dd5bd126"));
 		register(new CompatVersion("1_17_R1", "1.17", "acd6e6c27e5a0a9440afba70a96c27c9"));
 		register(new CompatVersion("1_16_R3", "1.16.5", "d4b392244df170796f8779ef0fc1f2e9"));
@@ -59,7 +62,8 @@ public final class NMSManager {
 
 	public static void load(Plugin plugin) {
 		String mappingsVersion = ServerUtils.getMappingsVersion();
-		CompatVersion compatVersion = SUPPORTED_MAPPINGS_VERSIONS.get(mappingsVersion);
+		String craftBukkitVersion = ServerUtils.getCraftBukkitVersion().substring(1);
+		CompatVersion compatVersion = SUPPORTED_MAPPINGS_VERSIONS.getOrDefault(mappingsVersion, SUPPORTED_CRAFTBUKKIT_VERSIONS.get(craftBukkitVersion));
 		if (compatVersion != null) {
 			String compatVersionString = compatVersion.getCompatVersion();
 			try {
